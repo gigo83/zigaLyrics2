@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Song Selection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .song-container {
+            display: grid;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .song-button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .song-button:hover {
+            background-color: #45a049;
+            transform: scale(1.02);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Choose a Song</h1>
+    <div class="song-container">
+        {% for song in seznamPesmi %}
+            <form action="{{ url_for('select_song') }}" method="POST">
+                <input type="hidden" name="song_id" value="{{ song[0] }}">
+                <button type="submit" class="song-button">
+                    {{ song[1] }}
+                </button>
+            </form>
+        {% endfor %}
+    </div>
+</body>
+</html>

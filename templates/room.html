@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+<style>
+    .song-selection {
+        width: 300px;
+    }
+    .chosen-container {
+        width: 100% !important;
+    }
+    .chosen-search input[type="text"] {
+        width: 100% !important;
+    }
+    .song-title {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 2em;
+        color: #333;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 10px;
+    }
+    .lyrics-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.lyrics-container h1.song-title {
+    text-align: center;
+}
+
+.lyrics-container p {
+    text-align: left;
+    display: inline-block;
+    max-width: 100%;
+    text-align: left;
+}
+</style>
+
+<div class="container">
+    <div class="header">
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('songs') }}" class="back-button">Back to Songs</a>
+        {% endif %}
+        
+        <div class="song-selection">
+            <select id="songDropdown" class="song-dropdown chosen-select">
+                {% for s in songs %}
+                <option value="{{ s.id }}" {% if s.id == song.id %}selected{% endif %}>
+                    {{ s.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="share-link">
+            Share link: <input type="text" readonly value="{{ request.url_root }}join/{{ room.code }}" id="shareLink">
+            <button onclick="copyLink()">Copy</button>
+        </div>
+    </div>
+
+    <div class="lyrics-container" id="lyrics" contenteditable="true"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    const socket = io();
+    const roomCode = "{{ room.code }}";
+    const songs = {{ songs|tojson|safe }};
+    
+    // Initialize chosen dropdown
+    $("#songDropdown").chosen({
+        search_contains: true,
+        no_results_text: "No songs found matching",
+        placeholder_text_single: "Select a song"
+    });
+
+    // Socket connection
+    socket.emit('join', {room: roomCode});
+    console.log('Joined room:', roomCode);
+
+    // Function to render lyrics with title
+    function renderSongContent(title, lyrics) {
+        const titleHtml = `<h1 class="song-title">${title}</h1>`;
+        const lyricsHtml = md.render(lyrics);
+        $('#lyrics').html(titleHtml + lyricsHtml);
+    }
+
+    // Initial lyrics render
+    const initialLyrics = {{ song.lyrics|tojson|safe }};
+    const initialTitle = "{{ song.title }}";
+    renderSongContent(initialTitle, initialLyrics);
+
+    // Song selection change
+    $('#songDropdown').on('change', function() {
+        const selectedSongId = $(this).val();
+        const selectedSong = songs.find(song => song.id == selectedSongId);
+        
+        if (selectedSong) {
+            // Update lyrics and title
+            renderSongContent(selectedSong.title, selectedSong.lyrics);
+            
+            // Emit song change to room
+            socket.emit('change_room_song', {
+                room: roomCode,
+                song_id: selectedSongId,
+                title: selectedSong.title,
+                lyrics: selectedSong.lyrics
+            });
+        }
+    });
+
+    // Lyrics editing and synchronization
+    $('#lyrics').on('input', function() {
+        const newLyrics = $(this).html();
+        socket.emit('lyrics_changed', {
+            room: roomCode,
+            lyrics: newLyrics
+        });
+    });
+    
+    // Listen for lyrics updates from others
+    socket.on('update_lyrics', function(data) {
+        console.log('Received lyrics update:', data);
+        $('#lyrics').html(md.render(data.lyrics));
+    });
+
+    // Listen for room song changes
+    socket.on('room_song_updated', function(data) {
+        console.log('Received song update:', data);
+        $('#songDropdown').val(data.song_id).trigger('chosen:updated');
+        renderSongContent(data.title, data.lyrics);
+    });
+});
+
+function copyLink() {
+    const shareLink = document.getElementById('shareLink');
+    shareLink.select();
+    document.execCommand('copy');
+
+}
+</script>
+{% endblock %}

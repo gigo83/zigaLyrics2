@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Selected Song Lyrics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .lyrics-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .song-title {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .lyrics-text {
+            white-space: pre-line;
+            line-height: 1.6;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .back-button {
+            display: block;
+            width: 100px;
+            padding: 10px;
+            margin: 20px auto;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="lyrics-container">
+        <h1 class="song-title">{{ songName[1] }}</h1>
+        <div class="lyrics-text">{{ lyrics }}</div>
+        <a href="/" class="back-button">Back</a>
+    </div>
+</body>
+</html>

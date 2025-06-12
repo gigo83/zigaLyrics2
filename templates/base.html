@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Lyrics App</title>
+    
+    <!-- External CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- External JS Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/11.0.0/markdown-it.min.js"></script>
+    <script src="https://unpkg.com/markdown-it-chords/dist/markdown-it-chords.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    
+    <!-- Markdown-it Initialization -->
+    <script>
+        // Initialize markdown-it with enhanced options
+        const md = window.markdownit({
+            html: true,        // Allow HTML in source
+            breaks: true,      // Convert line breaks to <br>
+            linkify: true,     // Autoconvert URL-like text to links
+            typographer: true  // Enable fancy quotes and other replacements
+        }).use(window.markdownItChords);
+        
+        // Global error handling
+        window.addEventListener('error', function(event) {
+            console.error('Unhandled error:', event.error);
+            alert('An unexpected error occurred. Please try again.');
+        });
+    </script>
+    
+    <!-- Basic Site Styles -->
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+        .back-button {
+            text-decoration: none;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+        }
+        .share-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .share-link input {
+            padding: 5px;
+            flex-grow: 1;
+        }
+        .lyrics-container {
+            min-height: 300px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+    
+    <!-- Global Notification System (optional) -->
+    <div id="global-notification" style="display:none; position:fixed; top:10px; right:10px; background:rgba(0,0,0,0.7); color:white; padding:10px; border-radius:5px;"></div>
+    
+    <script>
+        // Global notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('global-notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = type === 'error' ? 'red' : 'rgba(0,0,0,0.7)';
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
