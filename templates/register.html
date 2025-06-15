@@ -7,65 +7,79 @@
         body {
             margin: 0;
             padding: 0;
-            background: url('/static/Slika-login.jpg') no-repeat center center fixed;
+            font-family: 'Segoe UI', sans-serif;
+            background: url("/static/Slika-login.jpg") no-repeat center center fixed;
             background-size: cover;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            color: white;
         }
 
         .register-container {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.75);
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 15px;
             text-align: center;
-            color: white;
-            min-width: 300px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        .register-container h1 {
+            margin-bottom: 25px;
+            font-size: 32px;
         }
 
         input[type="text"],
         input[type="password"] {
-            padding: 10px;
+            width: 90%;
+            padding: 12px;
             margin: 10px 0;
             border: none;
-            border-radius: 5px;
-            width: 100%;
+            border-radius: 8px;
             font-size: 16px;
         }
 
         button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
+            margin-top: 20px;
             width: 100%;
-        }
-
-        a {
-            color: #ccc;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 15px;
-        }
-
-        a:hover {
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
             color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .bottom-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .bottom-link a {
+            color: #00aaff;
+            text-decoration: none;
+        }
+
+        .bottom-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <form method="POST" class="register-container">
-        <h2>Register</h2>
-        <input type="text" name="username" placeholder="Enter username" required>
-        <input type="password" name="password" placeholder="Enter password" required>
-        <button type="submit">Register</button>
-        <a href="{{ url_for('login') }}">Login</a>
+    <form method="POST">
+        <div class="register-container">
+            <h1>Register</h1>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Register</button>
+            <div class="bottom-link">
+                Already have an account? <a href="{{ url_for('login') }}">Login</a>
+            </div>
+        </div>
     </form>
 </body>
 </html>
