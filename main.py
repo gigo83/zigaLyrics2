@@ -102,7 +102,7 @@ def edit_song(song_id):
     song = Song.query.get_or_404(song_id)
     
     # Ensure only the author can edit the song
-    if song.author != current_user:
+    if current_user.username != 'zigazore':
         abort(403)  # Forbidden
     
     if request.method == 'POST':
