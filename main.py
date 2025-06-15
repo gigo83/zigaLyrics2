@@ -173,7 +173,7 @@ def room(code):
             'lyrics': s.lyrics
         } for s in Song.query.all()
     ]
-    return render_template('room.html', room=room, song=song, songs=songs, public=False)
+    return render_template('room.html', room=room, current_song=song, song=song, songs=songs, public=False)
 
 @app.route('/join/<code>')
 def join_room_public(code):

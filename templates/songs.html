@@ -1,19 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h1>My Songs</h1>
-    
-    <a href="{{ url_for('editor') }}" class="btn btn-primary">Create New Song</a>
-    
+<div class="songs-container">
+    <div class="songs-header">
+        <h1>My Songs</h1>
+        <a href="{{ url_for('editor') }}" class="btn btn-create">+ Create New Song</a>
+    </div>
+
     <div class="songs-list">
         {% for song in songs %}
-        <div class="song-item">
-            <div class="song-details">
-                <h3>{{ song.title }}</h3>
-                <div class="song-actions">
-                    <a href="{{ url_for('edit_song', song_id=song.id) }}" class="btn btn-edit">Edit</a>
-                    <a href="{{ url_for('select_song') }}" class="btn btn-select" onclick="selectSong({{ song.id }}); return false;">Select</a>
-                </div>
+        <div class="song-card">
+            <span class="song-title">{{ song.title }}</span>
+            <div class="song-actions">
+                <a href="{{ url_for('edit_song', song_id=song.id) }}" class="btn btn-action">Edit</a>
+                <a href="{{ url_for('select_song') }}" class="btn btn-action" onclick="selectSong({{ song.id }}); return false;">Select</a>
             </div>
         </div>
         {% endfor %}
@@ -25,12 +24,12 @@ function selectSong(songId) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = "{{ url_for('select_song') }}";
-    
+
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = 'song_id';
     input.value = songId;
-    
+
     form.appendChild(input);
     document.body.appendChild(form);
     form.submit();
@@ -38,47 +37,80 @@ function selectSong(songId) {
 </script>
 
 <style>
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.songs-container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.songs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: 600;
 }
 
 .btn {
-    display: inline-block;
-    padding: 10px 15px;
-    margin: 5px;
-    text-decoration: none;
-    border-radius: 4px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s ease;
 }
 
-.btn-primary {
+.btn-create {
     background-color: #007bff;
     color: white;
-    margin-bottom: 20px;
+}
+
+.btn-create:hover {
+    background-color: #0056b3;
 }
 
 .songs-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-.song-item {
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 4px;
+.song-card {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 15px 20px;
+    border-radius: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.song-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+.song-card:hover {
+    transform: scale(1.01);
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+.song-title {
+    font-size: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .song-actions {
@@ -86,14 +118,37 @@ function selectSong(songId) {
     gap: 10px;
 }
 
-.btn-edit {
-    background-color: #28a745;
+.btn-action {
+    background-color: #007bff;
     color: white;
 }
 
-.btn-select {
-    background-color: #17a2b8;
-    color: white;
+.btn-action:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+    .songs-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .song-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .song-actions {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
 }
 </style>
 {% endblock %}

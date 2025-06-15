@@ -1,146 +1,141 @@
 {% extends "base.html" %}
 {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
-<style>
-    .song-selection {
-        width: 300px;
-    }
-    .chosen-container {
-        width: 100% !important;
-    }
-    .chosen-search input[type="text"] {
-        width: 100% !important;
-    }
-    .song-title {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 2em;
-        color: #333;
-        border-bottom: 2px solid #ddd;
-        padding-bottom: 10px;
-    }
-    .lyrics-container {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.lyrics-container h1.song-title {
-    text-align: center;
-}
-
-.lyrics-container p {
-    text-align: left;
-    display: inline-block;
-    max-width: 100%;
-    text-align: left;
-}
-</style>
-
-<div class="container">
-    <div class="header">
-        {% if current_user.is_authenticated %}
-        <a href="{{ url_for('songs') }}" class="back-button">Back to Songs</a>
-        {% endif %}
-        
-        <div class="song-selection">
-            <select id="songDropdown" class="song-dropdown chosen-select">
-                {% for s in songs %}
-                <option value="{{ s.id }}" {% if s.id == song.id %}selected{% endif %}>
-                    {{ s.title }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="share-link">
-            Share link: <input type="text" readonly value="{{ request.url_root }}join/{{ room.code }}" id="shareLink">
-            <button onclick="copyLink()">Copy</button>
+<div class="container room-content">
+    <div class="top-bar">
+        <a href="{{ url_for('songs') }}" class="btn btn-primary">Back to Songs</a>
+        <div class="share-group">
+            <input type="text" id="share-link" value="{{ request.url }}" readonly>
+            <button onclick="copyLink()" class="btn btn-success">Copy</button>
         </div>
     </div>
 
-    <div class="lyrics-container" id="lyrics" contenteditable="true"></div>
+    <div class="lyrics-box">
+        <h1 class="song-title">{{ current_song.title }}</h1>
+        <div class="lyrics-body">{{ current_song.lyrics }}</div>
+    </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 <script>
-$(document).ready(function() {
-    const socket = io();
-    const roomCode = "{{ room.code }}";
-    const songs = {{ songs|tojson|safe }};
-    
-    // Initialize chosen dropdown
-    $("#songDropdown").chosen({
-        search_contains: true,
-        no_results_text: "No songs found matching",
-        placeholder_text_single: "Select a song"
-    });
-
-    // Socket connection
-    socket.emit('join', {room: roomCode});
-    console.log('Joined room:', roomCode);
-
-    // Function to render lyrics with title
-    function renderSongContent(title, lyrics) {
-        const titleHtml = `<h1 class="song-title">${title}</h1>`;
-        const lyricsHtml = md.render(lyrics);
-        $('#lyrics').html(titleHtml + lyricsHtml);
-    }
-
-    // Initial lyrics render
-    const initialLyrics = {{ song.lyrics|tojson|safe }};
-    const initialTitle = "{{ song.title }}";
-    renderSongContent(initialTitle, initialLyrics);
-
-    // Song selection change
-    $('#songDropdown').on('change', function() {
-        const selectedSongId = $(this).val();
-        const selectedSong = songs.find(song => song.id == selectedSongId);
-        
-        if (selectedSong) {
-            // Update lyrics and title
-            renderSongContent(selectedSong.title, selectedSong.lyrics);
-            
-            // Emit song change to room
-            socket.emit('change_room_song', {
-                room: roomCode,
-                song_id: selectedSongId,
-                title: selectedSong.title,
-                lyrics: selectedSong.lyrics
-            });
-        }
-    });
-
-    // Lyrics editing and synchronization
-    $('#lyrics').on('input', function() {
-        const newLyrics = $(this).html();
-        socket.emit('lyrics_changed', {
-            room: roomCode,
-            lyrics: newLyrics
-        });
-    });
-    
-    // Listen for lyrics updates from others
-    socket.on('update_lyrics', function(data) {
-        console.log('Received lyrics update:', data);
-        $('#lyrics').html(md.render(data.lyrics));
-    });
-
-    // Listen for room song changes
-    socket.on('room_song_updated', function(data) {
-        console.log('Received song update:', data);
-        $('#songDropdown').val(data.song_id).trigger('chosen:updated');
-        renderSongContent(data.title, data.lyrics);
-    });
-});
-
 function copyLink() {
-    const shareLink = document.getElementById('shareLink');
-    shareLink.select();
-    document.execCommand('copy');
-
+    const copyText = document.getElementById("share-link");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("Link copied to clipboard");
 }
 </script>
+
+<style>
+body {
+    background-image: url("{{ url_for('static', filename='Slika-login.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+}
+
+.container.room-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.share-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.share-group input {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    width: 280px;
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-weight: bold;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-success {
+    background-color: #007bff;
+    color: white;
+}
+
+.lyrics-box {
+    text-align: center;
+}
+
+.song-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.lyrics-body {
+    font-size: 18px;
+    line-height: 2;
+    white-space: pre-line;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .share-group {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .share-group input {
+        width: 100%;
+    }
+
+    .song-title {
+        font-size: 24px;
+    }
+
+    .lyrics-body {
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
 {% endblock %}
