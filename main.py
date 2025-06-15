@@ -242,6 +242,17 @@ def test_disconnect():
 def init_db():
     with app.app_context():
         db.create_all()
+
+        # Dodaj začetnega uporabnika, če še ne obstaja
+        if not User.query.filter_by(username='zigazore').first():
+            user = User(username='zigazore')
+            user.set_password('geslo123')  # uporabi svoje geslo
+            db.session.add(user)
+            db.session.commit()
+            print("Testni uporabnik dodan.")
+        else:
+            print("Uporabnik že obstaja.")
+
         print("Database initialized!")
 
 if __name__ == '__main__':
