@@ -85,7 +85,7 @@ def songs():
 @login_required
 def editor():
     if request.method == 'POST':
-        lyrics = request.form['lyrics'].replace('\r\n', '\n')  # Normalize newlines
+        lyrics = request.form['lyrics'].replace('\r\n', '\n')
         song = Song(
             title=request.form['title'],
             lyrics=lyrics,
@@ -100,35 +100,32 @@ def editor():
 @login_required
 def edit_song(song_id):
     song = Song.query.get_or_404(song_id)
-    
-    # Ensure only the author can edit the song
+
+    # Only the owner zigazore can edit songs
     if current_user.username != 'zigazore':
-        abort(403)  # Forbidden
-    
+        abort(403)
+
     if request.method == 'POST':
-        # Normalize line breaks and preserve formatting
+
         song.title = request.form['title']
-        
-        # Preserve both \r\n and \n, convert to \n
-        lyrics = request.form['lyrics']
-        lyrics = lyrics.replace('\r\n', '\n')
+        lyrics = request.form['lyrics'].replace('\r\n', '\n')
         song.lyrics = lyrics
-        
+
         db.session.commit()
-        
+
         return redirect(url_for('songs'))
-    
+
     return render_template('edit_song.html', song=song)
 
 @app.route('/delete_song/<int:song_id>', methods=['POST'])
 @login_required
 def delete_song(song_id):
     song = Song.query.get_or_404(song_id)
-    
-    # Ensure only the author can delete the song
-    if song.author != current_user:
-        abort(403)  # Forbidden
-    
+
+    # Only the owner zigazore can delete songs
+    if current_user.username != 'zigazore':
+        abort(403)
+
     db.session.delete(song)
     db.session.commit()
     return redirect(url_for('songs'))
@@ -137,27 +134,23 @@ def delete_song(song_id):
 @login_required
 def select_song():
     song_id = request.form['song_id']
-    
-    # Fetch the song again to ensure you have the latest data
+
     song = Song.query.get_or_404(song_id)
-    
-    # Create or update the room
+
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    
-    # Try to find an existing room with this song
+
     room = Room.query.filter_by(current_song_id=song_id).first()
-    
+
     if room:
-        # If room exists, use its existing code
+
         code = room.code
     else:
-        # Create a new room
+
         room = Room(code=code, current_song_id=song.id)
         db.session.add(room)
-    
-    # Always commit to ensure changes are saved
+
     db.session.commit()
-    
+
     return redirect(url_for('room', code=room.code))
 
 @app.route('/room/<code>')
@@ -165,70 +158,42 @@ def select_song():
 def room(code):
     room = Room.query.filter_by(code=code).first_or_404()
     song = Song.query.get_or_404(room.current_song_id)
-    # Manually serialize songs
-    songs = [
-        {
-            'id': s.id, 
-            'title': s.title, 
-            'lyrics': s.lyrics
-        } for s in Song.query.all()
-    ]
+    songs = [{ 'id': s.id, 'title': s.title, 'lyrics': s.lyrics } for s in Song.query.all()]
     return render_template('room.html', room=room, current_song=song, song=song, songs=songs, public=False)
 
 @app.route('/join/<code>')
 def join_room_public(code):
     room = Room.query.filter_by(code=code).first_or_404()
     song = Song.query.get_or_404(room.current_song_id)
-    # Manually serialize songs
-    songs = [
-        {
-            'id': s.id, 
-            'title': s.title, 
-            'lyrics': s.lyrics
-        } for s in Song.query.all()
-    ]
+    songs = [{ 'id': s.id, 'title': s.title, 'lyrics': s.lyrics } for s in Song.query.all()]
     return render_template('room.html', room=room, song=song, songs=songs, public=True)
 
 @socketio.on('join')
 def on_join(data):
-    room = data['room']
-    join_room(room)
-    print(f"Client joined room: {room}")
-
+    join_room(data['room'])
+    print(f"Client joined room: {data['room']}")
 
 @socketio.on('change_room_song')
 def handle_room_song_change(data):
-    """Handle changing the song for the entire room"""
-    room = data['room']
-    song_id = data['song_id']
-    title = data['title']
-    lyrics = data['lyrics']
-    
-    # Update the room's current song
-    room_obj = Room.query.filter_by(code=room).first()
+    room_obj = Room.query.filter_by(code=data['room']).first()
     if room_obj:
-        room_obj.current_song_id = song_id
+        room_obj.current_song_id = data['song_id']
         db.session.commit()
-    
-    # Broadcast song change to everyone in the room
+
     emit('room_song_updated', {
-        'song_id': song_id, 
-        'title': title,
-        'lyrics': lyrics
-    }, room=room, broadcast=True)
+        'song_id': data['song_id'],
+        'title': data['title'],
+        'lyrics': data['lyrics']
+    }, room=data['room'], broadcast=True)
 
 @socketio.on('lyrics_changed')
 def handle_lyrics_update(data):
-    room = data['room']
-    lyrics = data['lyrics']
-    print(f"Broadcasting lyrics update to room {room}")
-    emit('update_lyrics', {'lyrics': lyrics}, room=room, broadcast=True)
+    print(f"Broadcasting lyrics update to room {data['room']}")
+    emit('update_lyrics', {'lyrics': data['lyrics']}, room=data['room'], broadcast=True)
 
 @socketio.on('scroll_position')
 def handle_scroll(data):
-    room = data['room']
-    position = data['position']
-    emit('update_scroll', position, room=room, broadcast=True, include_self=False)
+    emit('update_scroll', data['position'], room=data['room'], broadcast=True, include_self=False)
 
 @socketio.on('connect')
 def test_connect():
@@ -237,22 +202,23 @@ def test_connect():
 @socketio.on('disconnect')
 def test_disconnect():
     print('Client disconnected')
-
+    
 
 def init_db():
+
     with app.app_context():
         db.create_all()
-
-        # Dodaj začetnega uporabnika, če še ne obstaja
-        if not User.query.filter_by(username='zigazore').first():
+        user = User.query.filter_by(username='zigazore').first()
+        if user:
+            user.set_password('mojegeslo123')
+            db.session.commit()
+            print("Geslo za zigazore je bilo ponastavljeno.")
+        else:
             user = User(username='zigazore')
-            user.set_password('geslo123')  # uporabi svoje geslo
+            user.set_password('mojegeslo123')
             db.session.add(user)
             db.session.commit()
-            print("Testni uporabnik dodan.")
-        else:
-            print("Uporabnik že obstaja.")
-
+            print("Uporabnik zigazore je bil ustvarjen.")
         print("Database initialized!")
 
 if __name__ == '__main__':
