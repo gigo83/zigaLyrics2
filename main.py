@@ -10,7 +10,7 @@ import os
 # Flask Setup
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/songs.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///songs.db'
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
