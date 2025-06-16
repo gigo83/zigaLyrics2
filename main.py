@@ -14,7 +14,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///songs.db'
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-
 # Login Manager Setup
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,6 +55,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    init_db()  # Pokliči pri vsakem dostopu do /login samo v tej fazi
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
         if user and user.check_password(request.form['password']):
@@ -100,32 +100,22 @@ def editor():
 @login_required
 def edit_song(song_id):
     song = Song.query.get_or_404(song_id)
-
-    # Only the owner zigazore can edit songs
     if current_user.username != 'zigazore':
         abort(403)
-
     if request.method == 'POST':
-
         song.title = request.form['title']
         lyrics = request.form['lyrics'].replace('\r\n', '\n')
         song.lyrics = lyrics
-
         db.session.commit()
-
         return redirect(url_for('songs'))
-
     return render_template('edit_song.html', song=song)
 
 @app.route('/delete_song/<int:song_id>', methods=['POST'])
 @login_required
 def delete_song(song_id):
     song = Song.query.get_or_404(song_id)
-
-    # Only the owner zigazore can delete songs
     if current_user.username != 'zigazore':
         abort(403)
-
     db.session.delete(song)
     db.session.commit()
     return redirect(url_for('songs'))
@@ -134,23 +124,15 @@ def delete_song(song_id):
 @login_required
 def select_song():
     song_id = request.form['song_id']
-
     song = Song.query.get_or_404(song_id)
-
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-
     room = Room.query.filter_by(current_song_id=song_id).first()
-
     if room:
-
         code = room.code
     else:
-
         room = Room(code=code, current_song_id=song.id)
         db.session.add(room)
-
     db.session.commit()
-
     return redirect(url_for('room', code=room.code))
 
 @app.route('/room/<code>')
@@ -179,7 +161,6 @@ def handle_room_song_change(data):
     if room_obj:
         room_obj.current_song_id = data['song_id']
         db.session.commit()
-
     emit('room_song_updated', {
         'song_id': data['song_id'],
         'title': data['title'],
@@ -203,13 +184,9 @@ def test_connect():
 def test_disconnect():
     print('Client disconnected')
 
-
 def init_db():
-    
     with app.app_context():
         db.create_all()
-
-        # Preveri ali obstaja uporabnik zigazore
         user = User.query.filter_by(username='zigazore').first()
         if not user:
             user = User(username='zigazore')
@@ -218,11 +195,9 @@ def init_db():
             db.session.commit()
             print("Uporabnik zigazore ustvarjen.")
         else:
-            # Geslo vedno ponastavi pri vsakem zagonu
             user.set_password('mojegeslo123')
             db.session.commit()
             print("Geslo za zigazore je bilo posodobljeno.")
-
         print("Database initialized.")
 
 if __name__ == '__main__':
