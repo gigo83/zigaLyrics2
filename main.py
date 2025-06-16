@@ -63,7 +63,7 @@ def login():
             return redirect(url_for('songs'))
     return render_template('login.html')
 
-@app.route('/logout', methods=['GET'])
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
