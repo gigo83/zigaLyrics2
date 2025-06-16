@@ -202,24 +202,28 @@ def test_connect():
 @socketio.on('disconnect')
 def test_disconnect():
     print('Client disconnected')
-    
+
 
 def init_db():
-
+    
     with app.app_context():
         db.create_all()
+
+        # Preveri ali obstaja uporabnik zigazore
         user = User.query.filter_by(username='zigazore').first()
-        if user:
-            user.set_password('mojegeslo123')
-            db.session.commit()
-            print("Geslo za zigazore je bilo ponastavljeno.")
-        else:
+        if not user:
             user = User(username='zigazore')
             user.set_password('mojegeslo123')
             db.session.add(user)
             db.session.commit()
-            print("Uporabnik zigazore je bil ustvarjen.")
-        print("Database initialized!")
+            print("Uporabnik zigazore ustvarjen.")
+        else:
+            # Geslo vedno ponastavi pri vsakem zagonu
+            user.set_password('mojegeslo123')
+            db.session.commit()
+            print("Geslo za zigazore je bilo posodobljeno.")
+
+        print("Database initialized.")
 
 if __name__ == '__main__':
     init_db()
