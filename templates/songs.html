@@ -3,7 +3,14 @@
 <div class="songs-container">
     <div class="songs-header">
         <h1>My Songs</h1>
-        <a href="{{ url_for('editor') }}" class="btn btn-create">+ Create New Song</a>
+    
+        <div>
+            <a href="{{ url_for('editor') }}" class="btn btn-create">+ Create New Song</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-action">Log out</a>
+            <form action="{{ url_for('logout') }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-action">Logout</button>
+            </form>
+        </div>
     </div>
 
     <div class="songs-list">
