@@ -6,7 +6,7 @@
     
         <div>
             <a href="{{ url_for('editor') }}" class="btn btn-create">+ Create New Song</a>
-            <a href="{{ url_for('logout') }}" class="btn btn-action">Log out</a>
+            
             <form action="{{ url_for('logout') }}" method="post" style="display:inline;">
                 <button type="submit" class="btn btn-action">Logout</button>
             </form>
