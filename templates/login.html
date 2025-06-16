@@ -11,58 +11,55 @@
 </div>
 
 <style>
-body {
-    background-image: url("/static/Slika-login.jpg");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    color: white;
-}
-
-.login-container {
-    max-width: 400px;
-    margin: 80px auto;
-    padding: 30px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-    text-align: center;
-}
-
-.login-container h1 {
-    margin-bottom: 20px;
-    font-size: 32px;
-}
-
-.login-container input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
-}
-
-.login-container button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-    box-sizing: border-box;
-    transition: background 0.3s;
-}
-
-.login-container button:hover {
-    background-color: #0056b3;
-}
-
-.login-container a {
-    color: #00bfff;
-    text-decoration: none;
-}
-</style>
+    body {
+        background-image: url("/static/Slika-login.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+    }
+    
+    .login-container {
+        max-width: 400px;
+        margin: 80px auto;
+        padding: 30px;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        text-align: center;
+    }
+    
+    .login-container h1 {
+        margin-bottom: 20px;
+        font-size: 32px;
+    }
+    
+    /* 👇 ENOTNA širina za inpute in gumb */
+    .login-container input,
+    .login-container button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+    }
+    
+    .login-container button {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .login-container button:hover {
+        background-color: #0056b3;
+    }
+    
+    .login-container a {
+        color: #00bfff;
+        text-decoration: none;
+    }
+    </style>
 {% endblock %}
