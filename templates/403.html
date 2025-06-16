@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align: center; margin-top: 100px; color: white;">
+    <h1>🔒 Dostop zavrnjen</h1>
+    <p>Nimate dovoljenja za urejanje te pesmi.</p>
+    <a href="{{ url_for('songs') }}" class="btn btn-create">Nazaj na pesmi</a>
+</div>
+{% endblock %}

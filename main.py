@@ -205,6 +205,9 @@ def init_db():
             db.session.commit()
             print("Geslo za zigazore je bilo posodobljeno.")
         print("Database initialized.")
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("403.html"), 403        
 
 if __name__ == '__main__':
     init_db()
