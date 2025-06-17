@@ -92,6 +92,19 @@ def editor():
         return redirect(url_for('songs'))
     return render_template('editor.html')
 
+@app.route('/edit_song/<int:song_id>', methods=['GET', 'POST'])
+@login_required
+def edit_song(song_id):
+    song = Song.query.get_or_404(song_id)
+    if current_user.username != 'zigazore':
+        abort(403)
+    if request.method == 'POST':
+        song.title = request.form['title']
+        song.lyrics = request.form['lyrics'].replace('\r\n', '\n')
+        db.session.commit()
+        return redirect(url_for('songs'))
+    return render_template('edit_song.html', song=song)
+
 @app.route('/select_song', methods=['POST'])
 @login_required
 def select_song():
