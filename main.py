@@ -119,6 +119,10 @@ def room():
 def on_join(data):
     join_room("GLOBAL")
     print(f"Client joined GLOBAL room")
+    global_state = GlobalState.query.first()
+    if global_state and global_state.current_song_id:
+        song = Song.query.get(global_state.current_song_id)
+        emit('room_song_updated', {'song_id': song.id, 'title': song.title, 'lyrics': song.lyrics})
 
 @socketio.on('change_room_song')
 def handle_room_song_change(data):
