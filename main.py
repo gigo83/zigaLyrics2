@@ -121,6 +121,7 @@ def delete_song(song_id):
 def select_song():
     song_id = request.form['song_id']
     song = Song.query.get_or_404(song_id)
+    print("🔥 Izbran komad:", song.title)  # <<< to DODAJ začasno
     global_state = GlobalState.query.first()
     if not global_state:
         global_state = GlobalState(current_song_id=song.id)
