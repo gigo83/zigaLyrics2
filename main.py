@@ -92,6 +92,7 @@ def editor():
         return redirect(url_for('songs'))
     return render_template('editor.html')
 
+
 @app.route('/edit_song/<int:song_id>', methods=['GET', 'POST'])
 @login_required
 def edit_song(song_id):
@@ -104,6 +105,16 @@ def edit_song(song_id):
         db.session.commit()
         return redirect(url_for('songs'))
     return render_template('edit_song.html', song=song)
+
+@app.route('/delete_song/<int:song_id>', methods=['POST'])
+@login_required
+def delete_song(song_id):
+    song = Song.query.get_or_404(song_id)
+    if current_user.username != 'zigazore':
+        abort(403)
+    db.session.delete(song)
+    db.session.commit()
+    return redirect(url_for('songs'))
 
 @app.route('/select_song', methods=['POST'])
 @login_required
