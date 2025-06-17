@@ -10,12 +10,27 @@
     </div>
 
     <div class="lyrics-box">
-        <h1 class="song-title">{{ current_song.title }}</h1>
-        <div class="lyrics-body">{{ current_song.lyrics }}</div>
+        <h1 class="song-title" id="song-title">{{ current_song.title }}</h1>
+        <div class="lyrics-body" id="lyrics-body">{{ current_song.lyrics }}</div>
     </div>
 </div>
 
+<script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
 <script>
+const socket = io();
+socket.emit('join', { room: 'GLOBAL' });
+
+// Posodobi prikazano pesem, če jo nekdo spremeni
+socket.on('room_song_updated', data => {
+    document.getElementById('song-title').textContent = data.title;
+    document.getElementById('lyrics-body').textContent = data.lyrics;
+});
+
+// Samodejna ponovna povezava vsakih 60 sekund
+setInterval(() => {
+    socket.emit('join', { room: 'GLOBAL' });
+}, 60000);
+
 function copyLink() {
     const copyText = document.getElementById("share-link");
     copyText.select();
