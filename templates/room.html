@@ -15,29 +15,40 @@
     </div>
 </div>
 
+<!-- Socket.IO za sinhronizacijo -->
 <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
 <script>
-const socket = io();
-socket.emit('join', { room: 'GLOBAL' });
+    const socket = io();
 
-// Posodobi prikazano pesem, če jo nekdo spremeni
-socket.on('room_song_updated', data => {
-    document.getElementById('song-title').textContent = data.title;
-    document.getElementById('lyrics-body').textContent = data.lyrics;
-});
+    function joinGlobalRoom() {
+        socket.emit('join', { room: 'GLOBAL' });
+    }
 
-// Samodejna ponovna povezava vsakih 60 sekund
-setInterval(() => {
-    socket.emit('join', { room: 'GLOBAL' });
-}, 60000);
+    // Priključi se v sobo ob nalaganju strani
+    joinGlobalRoom();
 
-function copyLink() {
-    const copyText = document.getElementById("share-link");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("Link copied to clipboard");
-}
+    // Samodejna ponovna povezava vsakih 60 sekund
+    setInterval(joinGlobalRoom, 60000);
+
+    // Poslušaj spremembo pesmi
+    socket.on('room_song_updated', data => {
+        document.getElementById('song-title').textContent = data.title;
+        document.getElementById('lyrics-body').textContent = data.lyrics;
+    });
+
+    // Poslušaj spremembo besedila (če bi urejal kdo v živo)
+    socket.on('update_lyrics', data => {
+        document.getElementById('lyrics-body').textContent = data.lyrics;
+    });
+
+    // Kopiranje povezave
+    function copyLink() {
+        const copyText = document.getElementById("share-link");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        alert("Link copied to clipboard");
+    }
 </script>
 
 <style>
