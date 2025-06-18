@@ -149,6 +149,11 @@ def on_join(data):
         song = Song.query.get(global_state.current_song_id)
         emit('room_song_updated', {'song_id': song.id, 'title': song.title, 'lyrics': song.lyrics})
 
+@socketio.on('select_song')
+def handle_select_song(data):
+    selected_song = data['song']
+    emit('song_selected', {'song': selected_song}, broadcast=True)        
+
 @socketio.on('change_room_song')
 def handle_room_song_change(data):
     global_state = GlobalState.query.first()
