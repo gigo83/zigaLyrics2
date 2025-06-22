@@ -156,6 +156,7 @@ def handle_select_song(data):
 
 @socketio.on('change_room_song')
 def handle_room_song_change(data):
+    print("🎵 Prejel spremembo pesmi:", data)
     global_state = GlobalState.query.first()
     if global_state:
         global_state.current_song_id = data['song_id']
