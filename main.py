@@ -1,3 +1,7 @@
+import eventlet
+import eventlet.wsgi
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
@@ -207,9 +211,7 @@ def forbidden(e):
     return render_template("403.html"), 403
 
 if __name__ == '__main__':
-    import eventlet
-    import eventlet.wsgi
-    eventlet.monkey_patch()
+
 
     port = int(os.environ.get("PORT", 5000))
     init_db()
