@@ -23,7 +23,10 @@
 <!-- Socket.IO za sinhronizacijo -->
 <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
 <script>
-    const socket = io();
+    const socket = io("wss://zigalyricsapp.onrender.com", {
+      transports: ["websocket"],
+      secure: true
+    });
 
     function joinGlobalRoom() {
         socket.emit('join', { room: 'GLOBAL' });
