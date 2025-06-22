@@ -151,8 +151,11 @@ def on_join(data):
 
 @socketio.on('select_song')
 def handle_select_song(data):
-    selected_song = data['song']
-    emit('song_selected', {'song': selected_song}, broadcast=True)        
+    print("🎵 Prejel pesem:", data)
+    emit('room_song_updated', {
+        'title': data['title'],
+        'lyrics': data['lyrics']
+    }, room='GLOBAL', broadcast=True)        
 
 @socketio.on('change_room_song')
 def handle_room_song_change(data):
