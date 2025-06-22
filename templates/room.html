@@ -49,7 +49,8 @@
 
     // 📤 Pošlji trenutno pesem strežniku
     function selectSong(title, lyrics) {
-        socket.emit('select_song', {
+        socket.emit('change_room_song', {
+            song_id: null,
             title: title,
             lyrics: lyrics
         });
